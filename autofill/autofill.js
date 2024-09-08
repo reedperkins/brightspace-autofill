@@ -30,7 +30,7 @@ function children(domNode) {
   return Array.from(depthFirstTraversal(domNode));
 }
 
-function enterScore(rubricItemNode, scoreIndex) {
+async function enterScore(rubricItemNode, scoreIndex) {
   const scoreNodes = children(rubricItemNode).filter(
     (node) => node.getAttribute?.("role") === "radio"
   );
@@ -54,17 +54,36 @@ function enterScore(rubricItemNode, scoreIndex) {
   });
 
   scoreNode.dispatchEvent(focusEvent);
+  await sleep(200);
+
   scoreNode.dispatchEvent(keyboardEvent);
+  await sleep(200);
+
   scoreNode.dispatchEvent(blurEvent);
+  await sleep(200);
+
 }
 
-function addFeedback(editorId, feedback) {
-  window.postMessage({ type: 'SET_EDITOR_CONTENT', editorId: editorId, content: feedback }, '*');
-}
-
-function getEditor(node) {
+async function addFeedback(node, feedback) {
   const editorNode = children(node).find((x) => x.id === "tinymce");
-  return editorNode ? editorNode.dataset.id : null;
+  const editorId = editorNode.dataset.id;
+
+  const focusEvent = new FocusEvent('focus', {
+    bubbles: true,
+    cancelable: true
+  });
+  const blurEvent = new FocusEvent('blur', {
+    bubbles: true,
+    cancelable: true
+  });
+
+  editorNode.dispatchEvent(focusEvent);
+  await sleep(500);
+
+  window.postMessage({ type: 'SET_EDITOR_CONTENT', editorId: editorId, content: feedback }, '*');
+  await sleep(500);
+
+  editorNode.dispatchEvent(blurEvent);
 }
 
 const assignments = {
@@ -126,18 +145,16 @@ async function runAutofill(assignmentKey) {
   );
   for (const [i, itemNode] of rubricItemNodes.entries()) {
     const { scoreIndex, feedback } = assignment.feedbacks[i];
-    enterScore(itemNode, scoreIndex);
+    await enterScore(itemNode, scoreIndex);
 
     const feedbackDisclosureNode = children(itemNode).find(
       (x) => x.tagName?.toLowerCase() === "d2l-button-subtle"
     );
     feedbackDisclosureNode.click();
-    await sleep(500);
+    await sleep(100);
 
-    const editorId = getEditor(itemNode);
-    if (editorId) {
-      addFeedback(editorId, feedback);
-    }
+    await addFeedback(itemNode, feedback);
+    await sleep(100);
   }
 
   const mainFeedbackNode = nodes.find(
@@ -145,8 +162,7 @@ async function runAutofill(assignmentKey) {
       node.tagName?.toLowerCase() ===
       "d2l-consistent-evaluation-right-panel-feedback"
   );
-  const editor = getEditor(mainFeedbackNode);
-  addFeedback(editor, assignment.mainFeedback);
+  await addFeedback(mainFeedbackNode, assignment.mainFeedback);
 }
 
 function injectScript() {
