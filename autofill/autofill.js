@@ -98,6 +98,10 @@ const assignments = {
   }
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function runAutofill(assignmentKey) {
   const assignment = assignments[assignmentKey];
   if (!assignment) {
@@ -111,7 +115,7 @@ async function runAutofill(assignmentKey) {
     node.classList?.contains("d2l-collapsible-panel-header")
   );
   rubricDisclosureNode.click();
-  await new Promise((r) => setTimeout(r, 500));
+  await sleep(500);
 
   const rubricNode = nodes.find(
     (node) => node.tagName?.toLowerCase() === "d2l-rubric-criteria-group-mobile"
@@ -128,7 +132,7 @@ async function runAutofill(assignmentKey) {
       (x) => x.tagName?.toLowerCase() === "d2l-button-subtle"
     );
     feedbackDisclosureNode.click();
-    await new Promise((r) => setTimeout(r, 500));
+    await sleep(500);
 
     const editorId = getEditor(itemNode);
     if (editorId) {
