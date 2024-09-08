@@ -12,5 +12,11 @@
         "matches": ["<all_urls>"],
         "js": ["autofill.js"]
       }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": ["injected.js"],
+        "matches": ["<all_urls>"]
+      }
     ]
   }

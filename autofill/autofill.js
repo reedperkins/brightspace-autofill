@@ -54,14 +54,13 @@ function enterScore(rubricItemNode, scoreIndex) {
   );
 }
 
-function addFeedback(editor, feedback) {
-  editor.focus();
-  editor.setContent(feedback);
+function addFeedback(editorId, feedback) {
+  window.postMessage({ type: 'SET_EDITOR_CONTENT', editorId: editorId, content: feedback }, '*');
 }
 
 function getEditor(node) {
   const editorNode = children(node).find((x) => x.id === "tinymce");
-  return tinymce.get(editorNode.dataset.id);
+  return editorNode ? editorNode.dataset.id : null;
 }
 
 const assignments = {
@@ -127,8 +126,10 @@ async function runAutofill(assignmentKey) {
     feedbackDisclosureNode.click();
     await new Promise((r) => setTimeout(r, 500));
 
-    const editor = getEditor(itemNode);
-    addFeedback(editor, feedback);
+    const editorId = getEditor(itemNode);
+    if (editorId) {
+      addFeedback(editorId, feedback);
+    }
   }
 
   const mainFeedbackNode = nodes.find(
@@ -139,6 +140,15 @@ async function runAutofill(assignmentKey) {
   const editor = getEditor(mainFeedbackNode);
   addFeedback(editor, assignment.mainFeedback);
 }
+
+function injectScript() {
+  const script = document.createElement('script');
+  script.src = chrome.runtime.getURL('injected.js');
+  (document.head || document.documentElement).appendChild(script);
+}
+
+// Inject the script when the content script loads
+injectScript();
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "runAutofill") {
