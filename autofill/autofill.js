@@ -35,23 +35,27 @@ function enterScore(rubricItemNode, scoreIndex) {
     (node) => node.getAttribute?.("role") === "radio"
   );
   const scoreNode = scoreNodes[scoreIndex];
-  scoreNode.dispatchEvent(
-    new MouseEvent("mousedown", {
+
+  const focusEvent = new FocusEvent('focus', {
       bubbles: true,
-      cancelable: true,
-      view: window,
-    })
-  );
-  scoreNode.dispatchEvent(
-    new KeyboardEvent("keydown", {
-      key: "Enter",
-      code: "Enter",
+    cancelable: true
+  });
+  const keyboardEvent = new KeyboardEvent('keydown', {
+    key: 'Enter',
+    code: 'Enter',
       keyCode: 13,
       which: 13,
       bubbles: true,
-      cancelable: true,
-    })
-  );
+    cancelable: true
+  });
+  const blurEvent = new FocusEvent('blur', {
+    bubbles: true,
+    cancelable: true
+  });
+
+  scoreNode.dispatchEvent(focusEvent);
+  scoreNode.dispatchEvent(keyboardEvent);
+  scoreNode.dispatchEvent(blurEvent);
 }
 
 function addFeedback(editorId, feedback) {
