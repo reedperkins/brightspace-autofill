@@ -37,15 +37,15 @@ function enterScore(rubricItemNode, scoreIndex) {
   const scoreNode = scoreNodes[scoreIndex];
 
   const focusEvent = new FocusEvent('focus', {
-      bubbles: true,
+    bubbles: true,
     cancelable: true
   });
   const keyboardEvent = new KeyboardEvent('keydown', {
     key: 'Enter',
     code: 'Enter',
-      keyCode: 13,
-      which: 13,
-      bubbles: true,
+    keyCode: 13,
+    which: 13,
+    bubbles: true,
     cancelable: true
   });
   const blurEvent = new FocusEvent('blur', {
